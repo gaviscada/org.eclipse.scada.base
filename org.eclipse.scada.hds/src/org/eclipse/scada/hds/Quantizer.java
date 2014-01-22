@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 TH4 SYSTEMS GmbH and others.
+ * Copyright (c) 2011, 2014 TH4 SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     TH4 SYSTEMS GmbH - initial API and implementation
+ *     IBH SYSTEMS GmbH - add some documentation, cleanup a bit
  *******************************************************************************/
 package org.eclipse.scada.hds;
 
@@ -16,6 +17,22 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A helper class to calculate quantized time frames <br/>
+ * <p>
+ * The basic idea is to align timestamp. This is done by splitting up time in
+ * quantized time frames. The size of these time frames is defined by time and
+ * unit.
+ * </p>
+ * <p>
+ * This class provides some helper methods to calculate timestamp based on
+ * parameters provided in the constructor.
+ * </p>
+ * <p>
+ * The Quantizer can also be initialized with a maximum number of time frames
+ * (count).
+ * </p>
+ */
 public class Quantizer
 {
 
@@ -47,6 +64,7 @@ public class Quantizer
 
     public Date getEndOfPeriod ( final Date now )
     {
+        // TODO: the result date is un-aligned, is this really what we want?
         if ( now == null )
         {
             return new Date ( System.currentTimeMillis () - this.millisTime * this.count );
@@ -57,7 +75,7 @@ public class Quantizer
         }
     }
 
-    public Date getValidStart ( final Date timestamp, final Date now )
+    protected Date getValidStart ( final Date timestamp, final Date now )
     {
         final Date start = getStart ( timestamp );
 
@@ -73,18 +91,53 @@ public class Quantizer
         }
     }
 
+    /**
+     * Get a quantized start timestamp if the timestamp is in the valid period
+     * of the quantizer <br/>
+     * This method calculates a quantized timestamp pointing at the start of the
+     * time frame the timestamp is in. If the timestamp is outside the valid
+     * range
+     * of the quantizer ( before "count * time" ) then it returns
+     * <code>null</code>.
+     * 
+     * @param timestamp
+     *            an un-quantized timestamp
+     * @return the quantized start timestamp or <code>null</code> if the
+     *         timestamp is out of range
+     */
     public Date getValidStart ( final Date timestamp )
     {
         return getValidStart ( timestamp, new Date () );
     }
 
+    /**
+     * Quantize to starting point before or at given timestamp
+     * 
+     * @param timestamp
+     *            the given timestamp (not quantized)
+     * @return the quantized timestamp or <code>null</code> if given timestamp
+     *         was null
+     */
     public Date getStart ( final Date timestamp )
     {
-        final long tix = timestamp.getTime () / this.millisTime * this.millisTime;
-        logger.trace ( "Timestamp {} -> {}", timestamp.getTime (), tix );
+        if ( timestamp == null )
+        {
+            return null;
+        }
+
+        final long time = timestamp.getTime ();
+        final long tix = time / this.millisTime * this.millisTime;
+        logger.trace ( "Timestamp {} -> {}", time, tix );
         return new Date ( tix );
     }
 
+    /**
+     * Get the timestamp following a quantized timestamp
+     * 
+     * @param start
+     *            an already quantized timestamp
+     * @return the timestamp which is exactly one step behind the given timstamp
+     */
     public Date getNext ( final Date start )
     {
         if ( start == null )
@@ -97,6 +150,13 @@ public class Quantizer
         }
     }
 
+    /**
+     * Get the timestamp preceeding a quantized timestamp
+     * 
+     * @param start
+     *            an already quantized timestamp
+     * @return the timestamp which is exactly one step before the given timstamp
+     */
     public Date getPrevious ( final Date start )
     {
         if ( start == null )
@@ -109,6 +169,13 @@ public class Quantizer
         }
     }
 
+    /**
+     * Get the end timestamp of a time frame
+     * 
+     * @param timestamp
+     *            an already quantized timestamp
+     * @return the timestamp of the end of the time frame the timestamp is in.
+     */
     public Date getEnd ( final Date timestamp )
     {
         return getNext ( getStart ( timestamp ) );

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 TH4 SYSTEMS GmbH and others.
+ * Copyright (c) 2011, 2014 TH4 SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     TH4 SYSTEMS GmbH - initial API and implementation
+ *     IBH SYSTEMS GmbH - extend access methods, cleanup
  *******************************************************************************/
 package org.eclipse.scada.hds;
 
@@ -25,17 +26,34 @@ public class DataFileAccessorImpl implements DataFileAccessor
 {
     private final static Logger logger = LoggerFactory.getLogger ( DataFileAccessorImpl.class );
 
-    protected static final byte FLAG_DELETED = 0x08;
+    public static interface EntryVisitor
+    {
+        boolean visitEntry ( long timestamp, double value, byte flags );
+    }
 
-    protected static final byte FLAG_HEARTBEAT = 0x04;
+    /**
+     * Entry is deleted
+     */
+    public static final byte FLAG_DELETED = 0x08;
 
-    protected static final byte FLAG_MANUAL = 0x02;
+    /**
+     * Entry is a heartbeat entry
+     */
+    public static final byte FLAG_HEARTBEAT = 0x04;
 
-    protected static final byte FLAG_ERROR = 0x01;
+    /**
+     * Marks a value as manually overridden
+     */
+    public static final byte FLAG_MANUAL = 0x02;
+
+    /**
+     * Marks a value as erroneous
+     */
+    public static final byte FLAG_ERROR = 0x01;
 
     protected static final int HEADER_SIZE = 4 + 4 + 8 + 8;
 
-    private static final int ENTRY_SIZE = 8 + 8 + 1;
+    protected static final int ENTRY_SIZE = 8 + 8 + 1;
 
     protected RandomAccessFile file;
 
@@ -169,7 +187,7 @@ public class DataFileAccessorImpl implements DataFileAccessor
                 logger.debug ( "At position: {}", this.channel.position () );
 
                 this.channel.position ( this.channel.position () - ENTRY_SIZE );
-                if ( read ( buffer ) != ENTRY_SIZE )
+                if ( safeRead ( buffer ) != ENTRY_SIZE )
                 {
                     break;
                 }
@@ -200,14 +218,8 @@ public class DataFileAccessorImpl implements DataFileAccessor
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.eclipse.scada.hds.DataFileAccessor#visit(org.eclipse.scada.hds.ValueVisitor)
-     */
-    @Override
-    public boolean visit ( final ValueVisitor visitor ) throws IOException
+    public boolean forwardVisitAll ( final EntryVisitor visitor ) throws IOException
     {
-        logger.debug ( "Welcome visitor: {}", visitor );
-
         final long position = this.channel.position ();
 
         try
@@ -216,7 +228,7 @@ public class DataFileAccessorImpl implements DataFileAccessor
 
             final ByteBuffer buffer = ByteBuffer.allocate ( ENTRY_SIZE );
 
-            while ( read ( buffer ) == ENTRY_SIZE )
+            while ( safeRead ( buffer ) == ENTRY_SIZE )
             {
                 buffer.flip ();
 
@@ -226,15 +238,13 @@ public class DataFileAccessorImpl implements DataFileAccessor
 
                 logger.debug ( "Visit value - flag: {}", flags );
 
-                if ( ( flags & FLAG_HEARTBEAT ) == 0 && ( flags & FLAG_DELETED ) == 0 )
+                final boolean cont = visitor.visitEntry ( timestamp, value, flags );
+                if ( !cont )
                 {
-                    final boolean cont = visitor.value ( value, new Date ( timestamp ), ( flags & FLAG_ERROR ) > 0, ( flags & FLAG_MANUAL ) > 0 );
-                    if ( !cont )
-                    {
-                        logger.debug ( "Stopping visit by request on visitor" );
-                        return false; // stop reading
-                    }
+                    logger.debug ( "Stopping visit by request on visitor" );
+                    return false;
                 }
+
                 buffer.clear ();
             }
         }
@@ -247,7 +257,41 @@ public class DataFileAccessorImpl implements DataFileAccessor
         return true; // continue reading
     }
 
-    private int read ( final ByteBuffer buffer ) throws IOException
+    /* (non-Javadoc)
+     * @see org.eclipse.scada.hds.DataFileAccessor#visit(org.eclipse.scada.hds.ValueVisitor)
+     */
+    @Override
+    public boolean visit ( final ValueVisitor visitor ) throws IOException
+    {
+        return forwardVisitAll ( new EntryVisitor () {
+
+            @Override
+            public boolean visitEntry ( final long timestamp, final double value, final byte flags )
+            {
+                if ( ( flags & FLAG_HEARTBEAT ) == 0 && ( flags & FLAG_DELETED ) == 0 )
+                {
+                    // forward request
+                    return visitor.value ( value, new Date ( timestamp ), ( flags & FLAG_ERROR ) > 0, ( flags & FLAG_MANUAL ) > 0 );
+                }
+                else
+                {
+                    // we skip and continue
+                    return true;
+                }
+            }
+        } );
+    }
+
+    /**
+     * Read until the buffer full or no bytes could be read
+     * 
+     * @param buffer
+     *            the buffer to fill
+     * @return the number of bytes read
+     * @throws IOException
+     *             in case of an I/O error
+     */
+    private int safeRead ( final ByteBuffer buffer ) throws IOException
     {
         while ( this.channel.read ( buffer ) > 0 && buffer.hasRemaining () )
         {
@@ -256,8 +300,10 @@ public class DataFileAccessorImpl implements DataFileAccessor
     }
 
     @Override
-    public void forwardCorrect ( final double value, final Date timestamp, final boolean error, final boolean manual ) throws Exception
+    public void forwardCorrect ( final double value, final Date afterDate ) throws Exception
     {
+        final long startTimestamp = afterDate.getTime ();
+
         final long position = this.channel.position ();
         try
         {
@@ -265,19 +311,19 @@ public class DataFileAccessorImpl implements DataFileAccessor
 
             final ByteBuffer buffer = ByteBuffer.allocate ( ENTRY_SIZE );
 
-            while ( read ( buffer ) == ENTRY_SIZE )
+            while ( safeRead ( buffer ) == ENTRY_SIZE )
             {
                 buffer.flip ();
 
                 final double entryValue = buffer.getDouble ();
-                final Date entryTimestamp = new Date ( buffer.getLong () );
+                final long entryTimestamp = buffer.getLong ();
                 final byte flags = buffer.get ();
 
                 logger.debug ( "Checking value - flag: {}", flags );
 
                 if ( ( flags & FLAG_HEARTBEAT ) == 0 && ( flags & FLAG_DELETED ) == 0 )
                 {
-                    if ( entryTimestamp.after ( timestamp ) )
+                    if ( entryTimestamp > startTimestamp )
                     {
                         logger.info ( "Rewriting history - delete - timestamp: {}, value: {}", entryTimestamp, entryValue );
                         // replace the flag value, mark as deleted
@@ -306,7 +352,7 @@ public class DataFileAccessorImpl implements DataFileAccessor
         logger.debug ( "Closing {}", this.fileInfo );
         if ( this.file == null )
         {
-            // alread disposed
+            // already disposed
             return;
         }
 
