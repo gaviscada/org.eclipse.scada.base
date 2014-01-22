@@ -1,13 +1,9 @@
 Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test for org.eclipse.scada.sec.provider.plain.property (Incubation)
+Bundle-SymbolicName: org.eclipse.scada.sec.provider.plain.property.test
+Bundle-Version: 0.1.0.qualifier
+Fragment-Host: org.eclipse.scada.sec.provider.plain.property;bundle-version="0.1.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.junit;bundle-version="4.8.0"
 Bundle-Vendor: Eclipse SCADA Project
-Fragment-Host: org.eclipse.scada.sec.provider.plain.property;bundle-ve
- rsion="0.1.0"
-Bundle-Version: 0.1.0.v20131213-1406
-Bundle-Name: Test for org.eclipse.scada.sec.provider.plain.property (I
- ncubation)
-Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.eclipse.scada.sec.provider.plain.property.tes
- t
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-
