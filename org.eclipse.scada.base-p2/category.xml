@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<site>
-   <feature url="features/org.eclipse.scada.base_0.1.0.qualifier.jar" id="org.eclipse.scada.base" version="0.1.0.qualifier">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><site>
+   <feature id="org.eclipse.scada.base" url="features/org.eclipse.scada.base_0.1.0.v20140312-1603.jar" version="0.1.0.v20140312-1603">
       <category name="org.eclipse.scada.base.category"/>
    </feature>
-   <feature url="features/org.eclipse.scada.base.sdk_0.1.0.qualifier.jar" id="org.eclipse.scada.base.sdk" version="0.1.0.qualifier">
+   <feature id="org.eclipse.scada.base.sdk" url="features/org.eclipse.scada.base.sdk_0.1.0.v20140312-1603.jar" version="0.1.0.v20140312-1603">
       <category name="org.eclipse.scada.base.sdk.category"/>
    </feature>
-   <category-def name="org.eclipse.scada.base.category" label="Eclipse SCADA Base (Incubation)"/>
-   <category-def name="org.eclipse.scada.base.sdk.category" label="Eclipse SCADA Base SDK (Incubation)"/>
+   <category-def label="Eclipse SCADA Base (Incubation)" name="org.eclipse.scada.base.category"/>
+   <category-def label="Eclipse SCADA Base SDK (Incubation)" name="org.eclipse.scada.base.sdk.category"/>
 </site>
