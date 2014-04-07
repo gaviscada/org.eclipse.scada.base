@@ -157,9 +157,9 @@ public class Variant implements Serializable, Comparable<Variant>
         setValue ( value );
     }
 
-    protected Variant ( final Variant arg0 )
+    protected Variant ( final Variant other )
     {
-        this ( arg0 != null ? arg0.value : null );
+        this ( other != null ? other.value : null );
     }
 
     public boolean isNull ()
@@ -294,7 +294,6 @@ public class Variant implements Serializable, Comparable<Variant>
     }
 
     /**
-     * @since 0.14.0
      * @param defaultValue
      *            the default value
      * @return the value as a double or the default value if the value cannot be
@@ -355,7 +354,6 @@ public class Variant implements Serializable, Comparable<Variant>
     }
 
     /**
-     * @since 0.14.0
      * @param defaultValue
      *            the default value
      * @return the value as an integer or the default value if the value cannot
@@ -416,7 +414,6 @@ public class Variant implements Serializable, Comparable<Variant>
     }
 
     /**
-     * @since 0.14.0
      * @param defaultValue
      *            the default value
      * @return the value as a long or the default value if the value cannot be
@@ -552,7 +549,8 @@ public class Variant implements Serializable, Comparable<Variant>
     }
 
     /**
-     * @since 0.15.0
+     * Return the value as boolean
+     * 
      * @param defaultValue
      *            the default value
      * @return the value as a boolean or the default value if the value is null
@@ -582,7 +580,6 @@ public class Variant implements Serializable, Comparable<Variant>
      *            the default value in case the conversion fails or the variant
      *            is NULL
      * @return the resulting java object
-     * @since 0.16.0
      */
     public Serializable as ( final VariantType variantType, final Serializable defaultValue )
     {
@@ -639,7 +636,6 @@ public class Variant implements Serializable, Comparable<Variant>
      *             to some other type
      * @throws NotConvertableException
      *             in case the variant cannot be converted to the target value
-     * @since 0.16.0
      */
     public Serializable as ( final VariantType variantType ) throws NullValueException, NotConvertableException
     {
@@ -742,37 +738,37 @@ public class Variant implements Serializable, Comparable<Variant>
             return true;
         }
 
-        final Variant arg0 = (Variant)obj;
+        final Variant other = (Variant)obj;
 
         try
         {
-            if ( arg0.isNull () )
+            if ( other.isNull () )
             {
                 return isNull ();
             }
             else if ( isNull () )
             {
-                return arg0.isNull ();
+                return other.isNull ();
             }
-            else if ( arg0.isBoolean () )
+            else if ( other.isBoolean () )
             {
-                return compareToBoolean ( arg0.asBoolean () );
+                return compareToBoolean ( other.asBoolean () );
             }
-            else if ( arg0.isDouble () )
+            else if ( other.isDouble () )
             {
-                return compareToDouble ( arg0.asDouble () );
+                return compareToDouble ( other.asDouble () );
             }
-            else if ( arg0.isLong () )
+            else if ( other.isLong () )
             {
-                return compareToLong ( arg0.asLong () );
+                return compareToLong ( other.asLong () );
             }
-            else if ( arg0.isInteger () )
+            else if ( other.isInteger () )
             {
-                return compareToInteger ( arg0.asInteger () );
+                return compareToInteger ( other.asInteger () );
             }
-            else if ( arg0.isString () )
+            else if ( other.isString () )
             {
-                return compareToString ( arg0.asString () );
+                return compareToString ( other.asString () );
             }
 
             return false;
@@ -794,7 +790,7 @@ public class Variant implements Serializable, Comparable<Variant>
     {
         if ( this.value == null )
         {
-            return 0;
+            return 31;
         }
         return this.value.hashCode ();
     }
