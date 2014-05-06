@@ -1,16 +1,16 @@
 Manifest-Version: 1.0
-Service-Component: OSGI-INF/service.xml
 Export-Package: org.eclipse.scada.sec.audit.log.slf4j;version="0.1.0";
  uses:="org.eclipse.scada.sec.authz,org.eclipse.scada.sec.audit,org.ec
  lipse.scada.sec"
+Service-Component: OSGI-INF/service.xml
 Bundle-Vendor: Eclipse SCADA Project
-Bundle-Version: 0.1.0.v20140506-1029
+Bundle-Version: 0.1.0.v20140506-1600
 Bundle-Name: Eclipse SCADA Security Audit Service based on SLF4J (Incu
  bation)
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.eclipse.scada.sec.audit.log.slf4j
 Import-Package: org.eclipse.scada.sec;version="0.1.0",org.eclipse.scad
  a.sec.audit;version="0.1.0",org.eclipse.scada.sec.authz;version="0.1.
  0",org.slf4j;version="1.6.0",org.slf4j.helpers;version="1.6.0"
+Bundle-SymbolicName: org.eclipse.scada.sec.audit.log.slf4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 

@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Export-Package: org.eclipse.scada.sec.utils.password;version="0.1.0"
 Bundle-Vendor: Eclipse SCADA Project
-Bundle-Version: 0.1.0.v20140506-1029
+Bundle-Version: 0.1.0.v20140506-1600
 Bundle-Name: Security Utilities (Incubation)
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.scada.sec.utils
