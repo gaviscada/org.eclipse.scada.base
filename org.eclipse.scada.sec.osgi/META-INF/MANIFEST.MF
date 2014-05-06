@@ -4,9 +4,10 @@ Export-Package: org.eclipse.scada.sec.osgi;version="0.1.0"; uses:="org
  clipse.scada.sec.audit,  org.eclipse.scada.sec.callback,  org.osgi.fr
  amework,  org.eclipse.scada.sec"
 Bundle-Vendor: Eclipse SCADA Project
-Bundle-Version: 0.1.0.v20140430-1536
+Bundle-Version: 0.1.0.v20140506-1029
 Bundle-Name: Eclipse SCADA Security OSGi (Incubation)
 Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.eclipse.scada.sec.osgi
 Import-Package: org.eclipse.scada.sec;version="0.1.0",org.eclipse.scad
  a.sec.audit;version="0.1.0",org.eclipse.scada.sec.authn;version="0.1.
  0",org.eclipse.scada.sec.authz;version="0.1.0",org.eclipse.scada.sec.
@@ -15,6 +16,5 @@ Import-Package: org.eclipse.scada.sec;version="0.1.0",org.eclipse.scad
  .utils.osgi;version="0.1.0",org.eclipse.scada.utils.statuscodes;versi
  on="0.1.0",org.osgi.framework;version="1.6.0",org.osgi.util.tracker;v
  ersion="1.5.0",org.slf4j;version="1.5.0"
-Bundle-SymbolicName: org.eclipse.scada.sec.osgi
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 
