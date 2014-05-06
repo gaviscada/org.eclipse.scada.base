@@ -5,11 +5,11 @@
   <parent>
     <groupId>org.eclipse.scada.base</groupId>
     <artifactId>org.eclipse.scada.base-parent</artifactId>
-    <version>0.1.0.RC2</version>
+    <version>0.1.0</version>
     <relativePath>../org.eclipse.scada.base-parent</relativePath>
   </parent>
   <groupId>org.eclipse.scada.base</groupId>
   <artifactId>org.eclipse.scada.sec.auth.logon</artifactId>
-  <version>0.1.0.v20140430-1526</version>
+  <version>0.1.0.v20140430-1536</version>
   <packaging>eclipse-plugin</packaging>
 </project>
