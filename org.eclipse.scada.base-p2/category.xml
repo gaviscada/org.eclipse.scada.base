@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><site>
-   <feature id="org.eclipse.scada.base" url="features/org.eclipse.scada.base_0.1.0.v20140520-1210.jar" version="0.1.0.v20140520-1210">
+   <feature id="org.eclipse.scada.base" url="features/org.eclipse.scada.base_0.1.0.v20140520-1338.jar" version="0.1.0.v20140520-1338">
       <category name="org.eclipse.scada.base.category"/>
    </feature>
-   <feature id="org.eclipse.scada.base.sdk" url="features/org.eclipse.scada.base.sdk_0.1.0.v20140520-1210.jar" version="0.1.0.v20140520-1210">
+   <feature id="org.eclipse.scada.base.sdk" url="features/org.eclipse.scada.base.sdk_0.1.0.v20140520-1338.jar" version="0.1.0.v20140520-1338">
       <category name="org.eclipse.scada.base.sdk.category"/>
    </feature>
    <category-def label="Eclipse SCADA Base (Incubation)" name="org.eclipse.scada.base.category"/>
