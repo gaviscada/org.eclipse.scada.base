@@ -28,9 +28,9 @@ public class ProcessInput extends AbstractScheduledInput
 
     private final Charset charset;
 
-    public ProcessInput ( final ScheduledExecutorService executor, final ProcessBuilder processBuilder, final Charset charset )
+    public ProcessInput ( final ScheduledExecutorService executor, final ProcessBuilder processBuilder, final Charset charset, final long period )
     {
-        super ( executor );
+        super ( executor, period );
 
         this.charset = charset;
 
@@ -48,8 +48,8 @@ public class ProcessInput extends AbstractScheduledInput
         {
             close ( p.getOutputStream () );
 
-            final ReaderThread inputReader = new ReaderThread ( p.getInputStream () );
-            final ReaderThread errorReader = new ReaderThread ( p.getErrorStream () );
+            final CaptureOutputThread inputReader = new CaptureOutputThread ( p.getInputStream () );
+            final CaptureOutputThread errorReader = new CaptureOutputThread ( p.getErrorStream () );
 
             logger.trace ( "Starting readers" );
 

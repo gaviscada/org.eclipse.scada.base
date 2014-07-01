@@ -10,31 +10,23 @@
  *******************************************************************************/
 package org.eclipse.scada.base.extractor.input;
 
-import java.nio.charset.Charset;
+import java.net.URL;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.scada.base.extractor.input.AbstractScheduledInput;
-import org.eclipse.scada.base.extractor.input.Data;
-import org.eclipse.scada.base.extractor.input.process.ProcessInput;
+import org.eclipse.scada.base.extractor.input.url.UrlConnectionInput;
 import org.eclipse.scada.base.extractor.input.utils.TestListener;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class ProcessTest
+public class UrlConnectionTest
 {
-
-    private final static Logger logger = LoggerFactory.getLogger ( ProcessTest.class );
-
     @Test
     public void test1 () throws Exception
     {
         final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor ();
 
-        final ProcessBuilder pb = new ProcessBuilder ( "date" ); // FIXME: works only on unix
-        final AbstractScheduledInput input = new ProcessInput ( executor, pb, Charset.forName ( "UTF-8" ) );
+        final Input input = new UrlConnectionInput ( executor, new URL ( "http://google.com" ), true, 100 );
 
         final TestListener listener = new TestListener ();
 
@@ -47,38 +39,6 @@ public class ProcessTest
 
         executor.shutdown ();
         executor.awaitTermination ( Long.MAX_VALUE, TimeUnit.MINUTES );
-
-        dumpData ( listener );
-
-        // TODO: test
-    }
-
-    @Test
-    public void test2 () throws Exception
-    {
-        final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor ();
-
-        final ProcessBuilder pb = new ProcessBuilder ( "sleep", "3" ); // FIXME: works only on unix
-        final AbstractScheduledInput input = new ProcessInput ( executor, pb, Charset.forName ( "UTF-8" ) );
-
-        final TestListener listener = new TestListener ();
-
-        input.addInputListener ( listener );
-
-        logger.debug ( "test2 - start" );
-
-        input.start ();
-        Thread.sleep ( 100 );
-        logger.debug ( "test2 - stop" );
-        input.stop ();
-        logger.debug ( "test2 - dispose" );
-        input.dispose ();
-
-        logger.debug ( "test2 - shutdown" );
-        executor.shutdown ();
-        logger.debug ( "test2 - wait" );
-        executor.awaitTermination ( Long.MAX_VALUE, TimeUnit.MINUTES );
-        logger.debug ( "test2 - done" );
 
         dumpData ( listener );
 

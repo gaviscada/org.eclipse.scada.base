@@ -19,6 +19,9 @@ import org.eclipse.scada.base.extractor.extract.ItemDescriptor;
 import org.eclipse.scada.base.extractor.extract.ItemValue;
 import org.eclipse.scada.core.Variant;
 
+/**
+ * Execute one pattern and build one value from it
+ */
 public class SinglePatternExtractor extends AbstractPatternExtractor
 {
     private final Pattern pattern;
@@ -32,8 +35,8 @@ public class SinglePatternExtractor extends AbstractPatternExtractor
     static
     {
         final Map<String, Variant> attributes = new HashMap<String, Variant> ( 1 );
-        attributes.put ( "description", Variant.valueOf ( "Result value" ) );
-        DESC_VALUE = new ItemDescriptor ( "value", attributes );
+        attributes.put ( "description", Variant.valueOf ( "Result value" ) ); //$NON-NLS-1$
+        DESC_VALUE = new ItemDescriptor ( "value", attributes ); //$NON-NLS-1$
     }
 
     public SinglePatternExtractor ( final Pattern pattern, final boolean fullMatch, final ValueFieldDescriptor fieldDescriptor )
@@ -72,12 +75,10 @@ public class SinglePatternExtractor extends AbstractPatternExtractor
         }
         else
         {
-            final Map<String, Variant> attributes = new HashMap<String, Variant> ( 1 );
-            attributes.put ( "nomatch.error", Variant.TRUE );
-            result.put ( DESC_VALUE, new ItemValue ( Variant.NULL, attributes ) );
+            result.put ( DESC_VALUE, new ItemValue ( Variant.NULL, NO_MATCH_ATTRIBUTES ) );
         }
 
-        result.put ( DESC_STATE, makeState ( m, match ) );
+        result.put ( DESC_STATE, makeState ( m, match, this.fullMatch, data ) );
 
         return result;
     }

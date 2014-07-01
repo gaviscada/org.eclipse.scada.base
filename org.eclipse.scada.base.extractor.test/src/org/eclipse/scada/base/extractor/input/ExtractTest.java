@@ -19,11 +19,10 @@ import org.eclipse.scada.base.extractor.extract.ItemValue;
 import org.eclipse.scada.base.extractor.extract.pattern.FieldSpec;
 import org.eclipse.scada.base.extractor.extract.pattern.MainFieldSpec;
 import org.eclipse.scada.base.extractor.extract.pattern.MultiPatternExtractor;
+import org.eclipse.scada.base.extractor.extract.pattern.MultiPatternExtractor.Fields;
 import org.eclipse.scada.base.extractor.extract.pattern.NumberFieldSpec;
 import org.eclipse.scada.base.extractor.extract.pattern.SinglePatternExtractor;
 import org.eclipse.scada.base.extractor.extract.pattern.ValueFieldDescriptor;
-import org.eclipse.scada.base.extractor.extract.pattern.MultiPatternExtractor.Fields;
-import org.eclipse.scada.base.extractor.input.Data;
 import org.eclipse.scada.base.extractor.input.utils.AbstractExtractTest;
 import org.eclipse.scada.core.Variant;
 import org.eclipse.scada.core.VariantType;
@@ -90,7 +89,10 @@ public class ExtractTest extends AbstractExtractTest
     @Test
     public void test3 ()
     {
-        final SinglePatternExtractor ex = new SinglePatternExtractor ( Pattern.compile ( "a" ), true, new MainFieldSpec ( VariantType.STRING ), null );
+        final String pattern = "a";
+        final String data = "test";
+
+        final SinglePatternExtractor ex = new SinglePatternExtractor ( Pattern.compile ( pattern ), true, new MainFieldSpec ( VariantType.STRING ), null );
 
         final Map<String, ItemValue> values = new HashMap<> ();
         {
@@ -102,10 +104,13 @@ public class ExtractTest extends AbstractExtractTest
         {
             final Map<String, Variant> attributes = new HashMap<> ();
             attributes.put ( "matcher.matches", Variant.FALSE );
+            attributes.put ( "matcher.pattern", Variant.valueOf ( pattern ) );
+            attributes.put ( "matcher.fullMatch", Variant.TRUE );
+            attributes.put ( "matcher.input.data", Variant.valueOf ( data ) );
             values.put ( "state", new ItemValue ( Variant.valueOf ( "NO-MATCH" ), attributes ) );
         }
 
-        test ( ex.processData ( new Data ( "test", null ) ), values, null );
+        test ( ex.processData ( new Data ( data, null ) ), values, null );
     }
 
     @Test
@@ -154,7 +159,7 @@ public class ExtractTest extends AbstractExtractTest
         expectValue ( values, "value4", Variant.valueOf ( 123.0 ) );
         expectValue ( values, "value5", Variant.TRUE );
 
-        expectMatchState ( values, 1 );
+        expectMatchState ( values, 0 );
 
         test ( ex.processData ( new Data ( "123", null ) ), values, null );
     }
