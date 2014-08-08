@@ -10,10 +10,14 @@
  *******************************************************************************/
 package org.eclipse.scada.base.extractor.input;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
+import org.eclipse.scada.base.extractor.transform.Transformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +30,31 @@ public abstract class AbstractInput implements Input
 
     private final Executor executor;
 
+    private Data lastData;
+
+    private final List<Transformer> transformers = new LinkedList<> ();
+
     public AbstractInput ( final Executor executor )
     {
         this.executor = executor;
+    }
+
+    @Override
+    public synchronized void addTransformer ( final Transformer transformer )
+    {
+        this.transformers.add ( transformer );
+    }
+
+    @Override
+    public synchronized void removeTransformer ( final Transformer transformer )
+    {
+        this.transformers.remove ( transformer );
+    }
+
+    public synchronized void setTransformers ( final Transformer[] transformers )
+    {
+        this.transformers.clear ();
+        this.transformers.addAll ( Arrays.asList ( transformers ) );
     }
 
     @Override
@@ -36,22 +62,37 @@ public abstract class AbstractInput implements Input
     {
         if ( this.listeners.add ( listener ) )
         {
-            // do something
+            if ( this.lastData != null )
+            {
+                final Data data = this.lastData;
+                this.executor.execute ( new Runnable () {
+                    @Override
+                    public void run ()
+                    {
+                        processFireData ( new Listener[] { listener }, data );
+                    }
+                } );
+            }
         }
     }
 
     @Override
     public synchronized void removeInputListener ( final Listener listener )
     {
-        if ( this.listeners.remove ( listener ) )
-        {
-            // do something
-        }
+        this.listeners.remove ( listener );
+    }
+
+    protected synchronized void fireDisposed ()
+    {
+        fireData ( new Data ( null, new InputDisposed () ) );
     }
 
     protected synchronized void fireData ( final Data data )
     {
+        final Data transformedData = transform ( data );
+
         final Listener[] listeners = this.listeners.toArray ( new Listener[this.listeners.size ()] );
+        this.lastData = data;
         try
         {
             this.executor.execute ( new Runnable () {
@@ -59,7 +100,7 @@ public abstract class AbstractInput implements Input
                 @Override
                 public void run ()
                 {
-                    processFireData ( listeners, data );
+                    processFireData ( listeners, transformedData );
                 }
             } );
         }
@@ -67,6 +108,27 @@ public abstract class AbstractInput implements Input
         {
             logger.warn ( "Failed to fireData", e );
         }
+    }
+
+    protected Data transform ( Data data )
+    {
+        if ( this.transformers.isEmpty () )
+        {
+            return data;
+        }
+
+        for ( final Transformer t : this.transformers )
+        {
+            try
+            {
+                data = t.transform ( data );
+            }
+            catch ( final Exception e )
+            {
+                data = new Data ( null, e );
+            }
+        }
+        return data;
     }
 
     protected void processFireData ( final Listener[] listeners, final Data data )
