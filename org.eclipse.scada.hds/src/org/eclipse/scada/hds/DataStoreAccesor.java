@@ -16,8 +16,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -430,7 +434,7 @@ public class DataStoreAccesor extends AbstractValueSource
     {
         logger.info ( "Purging {}", this.basePath );
 
-        for ( final File file : this.basePath.listFiles () )
+        for ( final File file : sortedFilesByName ( this.basePath.listFiles () ) )
         {
             logger.debug ( "Checking file: {}", file );
 
@@ -457,6 +461,9 @@ public class DataStoreAccesor extends AbstractValueSource
                 else
                 {
                     accessor.dispose ();
+                    // we don't need to continue here, because each file after 
+                    // this will be outside the given range anyway
+                    return;
                 }
 
             }
@@ -465,6 +472,19 @@ public class DataStoreAccesor extends AbstractValueSource
                 logger.warn ( String.format ( "Failed to check file: %s", file ), e );
             }
         }
+    }
+
+    private List<File> sortedFilesByName ( File[] files )
+    {
+        final List<File> sortedFiles = Arrays.asList ( files );
+        Collections.sort ( sortedFiles, new Comparator<File> () {
+            @Override
+            public int compare ( File o1, File o2 )
+            {
+                return o1.getName ().compareToIgnoreCase ( o2.getName () );
+            }
+        } );
+        return sortedFiles;
     }
 
     /**

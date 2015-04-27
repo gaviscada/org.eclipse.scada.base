@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Export-Package: org.eclipse.scada.hds;version="0.1.0";uses:="org.eclipse.scada.utils.lang"
 Bundle-Vendor: Eclipse SCADA Project
-Bundle-Version: 0.1.0.qualifier
+Bundle-Version: 0.2.0.qualifier
 Bundle-Name: Eclipse SCADA Historical Data Storage (Incubation)
 Bundle-ManifestVersion: 2
 Import-Package: org.eclipse.scada.utils.lang;version="0.1.0",
